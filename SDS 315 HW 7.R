@@ -38,7 +38,7 @@ result$conf.int
 
 #D
 #If we were to repeat this sampling process many times, 95% of the resulting confidence intervals would contain the true difference in proportions between males and females who fold their left arm on top, which we estimate to be between -0.0834 and 0.180.
- 
+  
 #E 
 # The standard error represents the variability of the difference in sample proportions if we were to repeatedly sample from the population. It measures the standard deviation of the sampling distribution, and how much we expect the observed difference in proportions to fluctuate.
 
@@ -81,12 +81,24 @@ ggplot(turnout, aes(x = factor(GOTV_call), y = AGE)) +
 table(turnout$voted1996, turnout$GOTV_call)  
 table(turnout$MAJORPTY, turnout$GOTV_call)   # Party affiliation by call
 
+ggplot(turnout, aes(x = factor(voted1998), y = AGE)) +
+  geom_boxplot(fill = "lightgreen") +
+  labs(x = "Voted in 1998", y = "Age", title = "Distribution of Age by Voting Status in 1998") +
+  theme_minimal()
+t.test(AGE ~ voted1998, data = turnout)  
 
 # Chi-square tests for categorical variables
 chisq.test(table(turnout$voted1996, turnout$GOTV_call))  
 chisq.test(table(turnout$MAJORPTY, turnout$GOTV_call))  
 
 t.test(turnout$AGE ~ turnout$GOTV_call)      # Age differences
+
+chisq.test(table(turnout$voted1996, turnout$voted1998))
+
+diffmeans_96_98 <- diffmean(voted1998 ~ voted1996, data = turnout)
+set.seed(123)
+boot_96_98 <- do(1000) * diffmean(voted1998 ~ voted1996, data = resample(turnout))
+confint(boot_96_98)
 
 diffmeans_MAJORPTY <- diffmean(MAJORPTY ~ GOTV_call, data = turnout)
 set.seed(123)
@@ -97,6 +109,13 @@ diffmeans_voted1996 <- diffmean(voted1996 ~ GOTV_call, data = turnout)
 set.seed(123)  
 boot_match <- do(1000) * diffmean(voted1996 ~ GOTV_call, data = resample(turnout))
 confint(boot_match)
+
+chisq.test(table(turnout$MAJORPTY, turnout$voted1998))
+
+diffmeans_PARTY_98 <- diffmean(voted1998 ~ MAJORPTY, data = turnout)
+set.seed(123)
+boot_PARTY_98 <- do(1000) * diffmean(voted1998 ~ MAJORPTY, data = resample(turnout))
+confint(boot_PARTY_98)
 
 
 #C
